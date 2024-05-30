@@ -18,15 +18,17 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class ExcelToDatabase {
 
     private static final String JDBC_URL = "jdbc:postgresql://localhost:5432/test";
     private static final String JDBC_USER = "postgres";
     private static final String JDBC_PASSWORD = "password";
+    private static final Logger log = Logger.getLogger(ExcelToDatabase.class.getName());
 
     public static void main(String[] args) {
-        String excelFilePath = "files/test_read_to_db.xlsx";
+        String excelFilePath = "files/test_data_large.xlsx";
         File file = new File(excelFilePath);
         String fileNameWithoutExtension = file.getName().replaceFirst("[.][^.]+$", "");
         try {
@@ -48,11 +50,11 @@ public class ExcelToDatabase {
             createTable(headers, columnTypes, fileNameWithoutExtension);
 
             // Insert data
-            insertData(sheet, headers, columnTypes);
+            insertData(sheet, headers, columnTypes, fileNameWithoutExtension);
 
             workbook.close();
         } catch (IOException | SQLException e) {
-            e.printStackTrace();
+            log.severe("Exception occurred: " + e.getMessage());
         }
     }
 
@@ -91,19 +93,24 @@ public class ExcelToDatabase {
             int columnIndex = entry.getKey();
             String columnName = entry.getValue();
             String columnType = columnTypes.get(columnIndex);
-            createTableSQL.append(columnName).append(" ").append(columnType).append(",");
+            createTableSQL.append("\"").append(columnName).append("\" ").append(columnType).append(",");
         }
         createTableSQL.deleteCharAt(createTableSQL.length() - 1).append(")");
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
              Statement statement = connection.createStatement()) {
+            // Drop the table if it already exists
+            String dropTableSQL = "DROP TABLE IF EXISTS " + tableName;
+            log.info("Dropping table with SQL: " + dropTableSQL);
+            statement.execute(dropTableSQL);
+            log.info("Creating table with SQL: " + createTableSQL);
             statement.execute(createTableSQL.toString());
         }
     }
 
-    private static void insertData(Sheet sheet, Map<Integer, String> headers, Map<Integer, String> columnTypes) throws SQLException {
-        StringBuilder insertSQL = new StringBuilder("INSERT INTO test_read_to_db (");
+    private static void insertData(Sheet sheet, Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName) throws SQLException {
+        StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
         for (String columnName : headers.values()) {
-            insertSQL.append(columnName).append(",");
+            insertSQL.append("\"").append(columnName).append("\",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
         insertSQL.append("?,".repeat(headers.size()));
@@ -113,6 +120,10 @@ public class ExcelToDatabase {
              PreparedStatement preparedStatement = connection.prepareStatement(insertSQL.toString())) {
             connection.setAutoCommit(false);
 
+            int count = 0;
+            int total = 0;
+            int batchSize = 2500; // Adjust this value based on your requirements and system capabilities
+
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue; // Skip header row
                 for (int i = 0; i < headers.size(); i++) {
@@ -121,9 +132,21 @@ public class ExcelToDatabase {
                     setPreparedStatementValue(preparedStatement, i + 1, cell, columnType);
                 }
                 preparedStatement.addBatch();
+
+                if (++count % batchSize == 0) {
+                    preparedStatement.executeBatch();
+                    total += count;
+                    log.info(count + " rows have been inserted into the table.");
+                    count = 0;
+                }
             }
-            preparedStatement.executeBatch();
+            if (count > 0) {
+                preparedStatement.executeBatch(); // insert remaining rows
+                total += count;
+                log.info(count + " rows have been inserted into the table.");
+            }
             connection.commit();
+            log.info("Total " + total + " rows have been inserted into the table.");
         }
     }
 
