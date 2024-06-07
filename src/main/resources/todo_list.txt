@@ -1,0 +1,1 @@
+1 use enum for TEXT and NUMERIC
