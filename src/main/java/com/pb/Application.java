@@ -1,6 +1,7 @@
 package com.pb;
 
 import com.pb.datasource.FileSystemDataSource;
+import com.pb.filereader.CsvFileReader;
 import com.pb.filereader.DbfFileReader;
 import com.pb.filereader.ExcelFileReader;
 import com.pb.filereader.FileReader;
@@ -34,6 +35,9 @@ public class Application {
                     break;
                 case "dbf":
                     fileReader = new DbfFileReader();
+                    break;
+                case "csv":
+                    fileReader = new CsvFileReader();
                     break;
                 default:
                     log.severe("Unsupported file extension: " + tableNameAndExtension.getSecond());

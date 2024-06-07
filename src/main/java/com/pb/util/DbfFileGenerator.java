@@ -13,7 +13,7 @@ import java.util.Random;
 public class DbfFileGenerator {
 
     public static void main(String[] args) {
-        String dbfFilePath = "files/test_data_large.dbf";
+        String dbfFilePath = "files/test_data_large2.dbf";
         int numberOfRecords = 10000; // Adjust this value as needed to create a large file
 
         try (FileOutputStream fos = new FileOutputStream(dbfFilePath);

@@ -2,15 +2,13 @@ package com.pb.writer;
 
 import com.linuxense.javadbf.DBFReader;
 import com.pb.util.DatabaseConnectionManager;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -93,10 +91,18 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
         try (Connection connection = DatabaseConnectionManager.getConnection()) {
             connection.setAutoCommit(false);
 
-            if (extension.equalsIgnoreCase("xlsx")) {
-                insertExcelData(headers, columnTypes, tableName, inputStream, connection);
-            } else if (extension.equalsIgnoreCase("dbf")) {
-                insertDbfData(headers, columnTypes, tableName, inputStream, connection);
+            switch (extension.toLowerCase()) {
+                case "xlsx":
+                    insertExcelData(headers, columnTypes, tableName, inputStream, connection);
+                    break;
+                case "dbf":
+                    insertDbfData(headers, columnTypes, tableName, inputStream, connection);
+                    break;
+                case "csv":
+                    insertCsvData(headers, columnTypes, tableName, inputStream, connection);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported file extension: " + extension);
             }
 
             connection.commit();
@@ -211,6 +217,73 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
                 log.info(count + " rows have been inserted into the table.");
             }
             log.info("Total " + total + " rows have been inserted into the table.");
+        }
+    }
+
+    private void insertCsvData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, InputStream inputStream, Connection connection) throws Exception {
+        try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(inputStream)).withSkipLines(1).build();
+             PreparedStatement preparedStatement = connection.prepareStatement(buildInsertSQL(headers, tableName))) {
+            connection.setAutoCommit(false);
+
+            String[] row;
+            int count = 0;
+            int total = 0;
+
+            while ((row = reader.readNext()) != null) {
+                for (int i = 0; i < headers.size(); i++) {
+                    String value = row[i];
+                    String columnType = columnTypes.get(i);
+                    setPreparedStatementValue(preparedStatement, i + 1, value, columnType);
+                }
+                preparedStatement.addBatch();
+
+                if (++count % BATCH_SIZE == 0) {
+                    preparedStatement.executeBatch();
+                    total += count;
+                    log.info(count + " rows have been inserted into the table.");
+                    count = 0;
+                }
+            }
+            if (count > 0) {
+                preparedStatement.executeBatch();
+                total += count;
+                log.info(count + " rows have been inserted into the table.");
+            }
+            connection.commit();
+            log.info("Total " + total + " rows have been inserted into the table.");
+        }
+    }
+
+    private String buildInsertSQL(Map<Integer, String> headers, String tableName) {
+        StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
+        for (String columnName : headers.values()) {
+            validateSqlIdentifier(columnName);
+            insertSQL.append("\"").append(columnName).append("\",");
+        }
+        insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
+        insertSQL.append("?,".repeat(headers.size()));
+        insertSQL.deleteCharAt(insertSQL.length() - 1).append(")");
+        return insertSQL.toString();
+    }
+
+    private void setPreparedStatementValue(PreparedStatement preparedStatement, int parameterIndex, String value, String columnType) throws SQLException {
+        if (value == null || value.isEmpty()) {
+            preparedStatement.setNull(parameterIndex, java.sql.Types.NULL);
+            return;
+        }
+        switch (columnType) {
+            case "NUMERIC":
+                preparedStatement.setDouble(parameterIndex, Double.parseDouble(value));
+                break;
+            case "TIMESTAMP":
+                preparedStatement.setTimestamp(parameterIndex, Timestamp.valueOf(value));
+                break;
+            case "BOOLEAN":
+                preparedStatement.setBoolean(parameterIndex, Boolean.parseBoolean(value));
+                break;
+            default:
+                preparedStatement.setString(parameterIndex, value);
+                break;
         }
     }
 
