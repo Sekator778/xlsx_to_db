@@ -1,7 +1,13 @@
 package com.pb.writer;
 
+import com.linuxense.javadbf.DBFReader;
 import com.pb.util.DatabaseConnectionManager;
-import org.apache.poi.ss.usermodel.*;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.InputStream;
@@ -10,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -44,7 +51,22 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
     }
 
     @Override
-    public void insertData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, InputStream inputStream) throws Exception {
+    public void insertData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, String extension, InputStream inputStream) throws Exception {
+
+        try (Connection connection = DatabaseConnectionManager.getConnection()) {
+            connection.setAutoCommit(false);
+
+            if (extension.equalsIgnoreCase("xlsx")) {
+                insertExcelData(headers, columnTypes, tableName, inputStream, connection);
+            } else if (extension.equalsIgnoreCase("dbf")) {
+                insertDbfData(headers, columnTypes, tableName, inputStream, connection);
+            }
+
+            connection.commit();
+        }
+    }
+
+    private void insertExcelData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, InputStream inputStream, Connection connection) throws Exception {
         Workbook workbook = new XSSFWorkbook(inputStream);
         Sheet sheet = workbook.getSheetAt(0);
 
@@ -57,10 +79,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
         insertSQL.append("?,".repeat(headers.size()));
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(")");
 
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(insertSQL.toString())) {
-            connection.setAutoCommit(false);
-
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL.toString())) {
             int count = 0;
             int total = 0;
 
@@ -85,7 +104,47 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
                 total += count;
                 log.info(count + " rows have been inserted into the table.");
             }
-            connection.commit();
+            log.info("Total " + total + " rows have been inserted into the table.");
+        }
+    }
+
+    private void insertDbfData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, InputStream inputStream, Connection connection) throws Exception {
+        DBFReader reader = new DBFReader(inputStream);
+
+        StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
+        for (String columnName : headers.values()) {
+            validateSqlIdentifier(columnName);
+            insertSQL.append("\"").append(columnName).append("\",");
+        }
+        insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
+        insertSQL.append("?,".repeat(headers.size()));
+        insertSQL.deleteCharAt(insertSQL.length() - 1).append(")");
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL.toString())) {
+            int count = 0;
+            int total = 0;
+
+            Object[] row;
+            while ((row = reader.nextRecord()) != null) {
+                for (int i = 0; i < headers.size(); i++) {
+                    Object value = row[i];
+                    String columnType = columnTypes.get(i);
+                    setPreparedStatementValue(preparedStatement, i + 1, value, columnType);
+                }
+                preparedStatement.addBatch();
+
+                if (++count % BATCH_SIZE == 0) {
+                    preparedStatement.executeBatch();
+                    total += count;
+                    log.info(count + " rows have been inserted into the table.");
+                    count = 0;
+                }
+            }
+            if (count > 0) {
+                preparedStatement.executeBatch();
+                total += count;
+                log.info(count + " rows have been inserted into the table.");
+            }
             log.info("Total " + total + " rows have been inserted into the table.");
         }
     }
@@ -96,6 +155,39 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             case "TIMESTAMP" -> preparedStatement.setTimestamp(parameterIndex, new Timestamp(cell.getDateCellValue().getTime()));
             case "BOOLEAN" -> preparedStatement.setBoolean(parameterIndex, cell.getBooleanCellValue());
             default -> preparedStatement.setString(parameterIndex, getCellValueAsString(cell));
+        }
+    }
+
+    private void setPreparedStatementValue(PreparedStatement preparedStatement, int parameterIndex, Object value, String columnType) throws SQLException {
+        if (value == null) {
+            preparedStatement.setNull(parameterIndex, java.sql.Types.NULL);
+            return;
+        }
+        switch (columnType) {
+            case "NUMERIC":
+                if (value instanceof Number) {
+                    preparedStatement.setDouble(parameterIndex, ((Number) value).doubleValue());
+                } else {
+                    preparedStatement.setNull(parameterIndex, java.sql.Types.NUMERIC);
+                }
+                break;
+            case "TIMESTAMP":
+                if (value instanceof Date) {
+                    preparedStatement.setTimestamp(parameterIndex, new Timestamp(((Date) value).getTime()));
+                } else {
+                    preparedStatement.setNull(parameterIndex, java.sql.Types.TIMESTAMP);
+                }
+                break;
+            case "BOOLEAN":
+                if (value instanceof Boolean) {
+                    preparedStatement.setBoolean(parameterIndex, (Boolean) value);
+                } else {
+                    preparedStatement.setNull(parameterIndex, java.sql.Types.BOOLEAN);
+                }
+                break;
+            default:
+                preparedStatement.setString(parameterIndex, value.toString());
+                break;
         }
     }
 

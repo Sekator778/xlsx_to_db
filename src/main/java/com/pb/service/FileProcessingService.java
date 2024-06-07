@@ -4,9 +4,13 @@ import com.pb.datasource.DataSource;
 import com.pb.filereader.FileReader;
 import com.pb.writer.DatabaseWriter;
 
+import org.apache.commons.math3.util.Pair;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Map;
+
+import static com.pb.util.TableNameUtil.createTableNameAndExtension;
 
 public class FileProcessingService {
     private final FileReader fileReader;
@@ -19,7 +23,9 @@ public class FileProcessingService {
         this.databaseWriter = databaseWriter;
     }
 
-    public void processFile(String source, String tableName) throws Exception {
+    public void processFile(String source, String fileName) throws Exception {
+        Pair<String, String> tableNameAndExtension = createTableNameAndExtension(fileName);
+
         try (InputStream inputStream = dataSource.getInputStream(source)) {
             byte[] fileData = inputStream.readAllBytes();
 
@@ -29,8 +35,8 @@ public class FileProcessingService {
 
                 Map<Integer, String> headers = fileReader.readHeaders(headerStream);
                 Map<Integer, String> columnTypes = fileReader.determineColumnTypes(columnTypeStream);
-                databaseWriter.createTable(headers, columnTypes, tableName);
-                databaseWriter.insertData(headers, columnTypes, tableName, dataStream);
+                databaseWriter.createTable(headers, columnTypes, tableNameAndExtension.getFirst());
+                databaseWriter.insertData(headers, columnTypes, tableNameAndExtension.getFirst(), tableNameAndExtension.getSecond(), dataStream);
             }
         }
     }
