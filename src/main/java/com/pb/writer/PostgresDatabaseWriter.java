@@ -57,7 +57,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             String columnName = entry.getValue();
             String columnType = columnTypes.get(columnIndex);
             validateSqlIdentifier(columnName);
-            createTableSQL.append("\"").append(columnName).append("\" ").append(columnType).append(",");
+            createTableSQL.append(columnName).append(" ").append(columnType).append(",");
         }
         createTableSQL.deleteCharAt(createTableSQL.length() - 1).append(")");
 
@@ -130,7 +130,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
         StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
         for (String columnName : headers.values()) {
             validateSqlIdentifier(columnName);
-            insertSQL.append("\"").append(columnName).append("\",");
+            insertSQL.append(columnName).append(",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
         insertSQL.append("?,".repeat(headers.size()));
@@ -185,7 +185,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
         StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
         for (String columnName : headers.values()) {
             validateSqlIdentifier(columnName);
-            insertSQL.append("\"").append(columnName).append("\",");
+            insertSQL.append(columnName).append(",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
         insertSQL.append("?,".repeat(headers.size()));
@@ -258,7 +258,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
         StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
         for (String columnName : headers.values()) {
             validateSqlIdentifier(columnName);
-            insertSQL.append("\"").append(columnName).append("\",");
+            insertSQL.append(columnName).append(",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
         insertSQL.append("?,".repeat(headers.size()));
