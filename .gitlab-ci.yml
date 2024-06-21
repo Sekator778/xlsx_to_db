@@ -11,6 +11,6 @@ tag_version:
         - git push origin $VERSION
         - echo "Tagged version $VERSION"
     only:
-        - master
+        - main
     except:
         - tags
