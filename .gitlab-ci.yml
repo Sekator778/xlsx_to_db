@@ -4,6 +4,10 @@ stages:
 variables:
     GIT_STRATEGY: clone
 
+before_script:
+    - apt-get update -yqq
+    - apt-get install -yqq git
+
 tag_version:
     stage: tag_version
     script:
