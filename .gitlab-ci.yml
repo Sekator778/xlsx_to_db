@@ -1,12 +1,10 @@
+image: maven:3.6.3-jdk-11
+
 stages:
     - tag_version
 
 variables:
     GIT_STRATEGY: clone
-
-before_script:
-    - apt-get update -yqq
-    - apt-get install -yqq git
 
 tag_version:
     stage: tag_version
