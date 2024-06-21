@@ -1,10 +1,18 @@
 image: maven:3.6.3-jdk-11
 
 stages:
+    - test
     - tag_version
 
 variables:
     GIT_STRATEGY: clone
+
+test:
+    stage: test
+    script:
+        - echo "Running tests"
+    only:
+        - merge_requests
 
 tag_version:
     stage: tag_version
