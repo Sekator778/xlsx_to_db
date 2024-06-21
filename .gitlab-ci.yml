@@ -1,0 +1,16 @@
+stages:
+    - tag_version
+
+tag_version:
+    stage: tag_version
+    script:
+        - echo "Extracting version from pom.xml"
+        - export VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        - echo "Tagging version $VERSION"
+        - git tag -a $VERSION -m "Tagging version $VERSION"
+        - git push origin $VERSION
+        - echo "Tagged version $VERSION"
+    only:
+        - master
+    except:
+        - tags
