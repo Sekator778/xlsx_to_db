@@ -12,6 +12,8 @@ tag_version:
         - echo "Extracting version from pom.xml"
         - export VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
         - echo "Tagging version $VERSION"
+        - git config --global user.email "oleksandr.nikolaichuk@privatbank.ua"
+        - git config --global user.name "dn070578noi"
         - git tag -a $VERSION -m "Tagging version $VERSION"
         - git push origin $VERSION
         - echo "Tagged version $VERSION"
