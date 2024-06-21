@@ -1,6 +1,9 @@
 stages:
     - tag_version
 
+variables:
+    GIT_STRATEGY: clone
+
 tag_version:
     stage: tag_version
     script:
