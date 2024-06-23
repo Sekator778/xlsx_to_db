@@ -1,11 +1,18 @@
-image: maven:3.6.3-jdk-11
+image: openjdk:21-jdk
+
+variables:
+    GIT_STRATEGY: clone
 
 stages:
     - test
     - tag_version
+    - check_java_version
 
-variables:
-    GIT_STRATEGY: clone
+check_java_version:
+    stage: check_java_version
+    script:
+        - java -version
+
 
 test:
     stage: test
@@ -19,7 +26,7 @@ tag_version:
     stage: tag_version
     script:
         - echo "Extracting version from pom.xml"
-        - export VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
+        - export VERSION=$(sed -n 's|.*<version>\(.*\)</version>.*|\1|p' pom.xml | head -n 1)
         - echo "Tagging version $VERSION"
         - git config --global user.email "oleksandr.nikolaichuk@privatbank.ua"
         - git config --global user.name "dn070578noi"
