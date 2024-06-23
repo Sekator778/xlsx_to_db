@@ -1,11 +1,11 @@
-image: openjdk:21-jdk
-
-variables:
-    GIT_STRATEGY: clone
+image: maven:3.6.3-jdk-11
 
 stages:
     - test
     - tag_version
+
+variables:
+    GIT_STRATEGY: clone
 
 test:
     stage: test
