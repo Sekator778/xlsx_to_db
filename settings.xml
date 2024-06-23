@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <mirrors>
+        <mirror>
+            <id>new</id>
+            <name>nexus.privatbank.ua</name>
+            <url>https://nexus.privatbank.ua/repository/maven-public/</url>
+            <mirrorOf>!central,com.pb.ts.*</mirrorOf>
+        </mirror>
+        <mirror>
+            <id>global_mirror</id>
+            <mirrorOf>*,!nexus_global</mirrorOf>
+            <url>https://nexus.privatbank.ua/repository/maven-public/</url>
+        </mirror>
+        <mirror>
+            <id>maven-default-http-blocker</id>
+            <mirrorOf>dummy</mirrorOf>
+            <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
+            <url>http://0.0.0.0/</url>
+        </mirror>
+    </mirrors>
+
+    <profiles>
+        <profile>
+            <id>nexus_profile</id>
+            <repositories>
+                <repository>
+                    <id>nexus_global</id>
+                    <url>https://nexus.privatbank.ua/repository/maven-public</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>central</id>
+                    <url>http://central</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <activeProfile>nexus_profile</activeProfile>
+    </activeProfiles>
+</settings>
