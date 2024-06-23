@@ -1,16 +1,17 @@
-image: maven:3.6.3-jdk-11
+image: openjdk:21-jdk
+
+variables:
+    GIT_STRATEGY: clone
 
 stages:
     - test
     - tag_version
 
-variables:
-    GIT_STRATEGY: clone
-
 test:
     stage: test
     script:
         - echo "Running tests"
+        - ./mvnw test
     only:
         - merge_requests
 
