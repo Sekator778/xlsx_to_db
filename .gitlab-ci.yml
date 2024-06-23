@@ -25,7 +25,7 @@ tag_version:
         - export COMMIT_HASH=$(git rev-parse HEAD)
         - export TAG_MESSAGE="Release version $VERSION based on commit $COMMIT_HASH"
         - git tag -a "$VERSION" -m "$TAG_MESSAGE" "$COMMIT_HASH"
-        - git push origin "$VERSION"
+        - git push https://gitlab-ci-token:${GITLAB_ACCESS_TOKEN}@git.privatbank.ua/DN171M000004/dn171m000004_20/tf-avbo/utility/xlsx_to_db.git $VERSION
         - echo "Tagged version $VERSION"
     only:
         - main
