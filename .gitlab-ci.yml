@@ -22,8 +22,10 @@ tag_version:
         - echo "Tagging version $VERSION"
         - git config --global user.email "oleksandr.nikolaichuk@privatbank.ua"
         - git config --global user.name "dn070578noi"
-        - git tag -a $VERSION -m "Tagging version $VERSION"
-        - git push origin $VERSION
+        - export COMMIT_HASH=$(git rev-parse HEAD)
+        - export TAG_MESSAGE="Release version $VERSION based on commit $COMMIT_HASH"
+        - git tag -a "$VERSION" -m "$TAG_MESSAGE" "$COMMIT_HASH"
+        - git push origin "$VERSION"
         - echo "Tagged version $VERSION"
     only:
         - main
