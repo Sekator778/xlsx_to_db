@@ -20,7 +20,6 @@ public class CSVFileGenerator {
             System.out.println("Usage: CSVFileGenerator <saveLocation> [<filePath>]");
             return;
         }
-
         String saveLocation = args[0]; // "disk" or "memory"
         String csvFilePath = (args.length > 1) ? args[1] : "files/test_data_large3.csv"; // Default file path if not provided
         int numberOfRecords = 1000000; // Adjust this value as needed to create a large file
@@ -28,8 +27,7 @@ public class CSVFileGenerator {
         if ("disk".equalsIgnoreCase(saveLocation)) {
             generateCsvFileOnDisk(csvFilePath, numberOfRecords);
         } else if ("memory".equalsIgnoreCase(saveLocation)) {
-            ByteArrayOutputStream outputStream = generateCsvFileInMemory(numberOfRecords);
-            // Further processing with outputStream if needed
+            generateCsvFileInMemory(numberOfRecords);
             System.out.println("CSV file created in memory successfully!");
         } else {
             System.out.println("Invalid save location specified. Use 'disk' or 'memory'.");
@@ -63,7 +61,7 @@ public class CSVFileGenerator {
         }
     }
 
-    private static ByteArrayOutputStream generateCsvFileInMemory(int numberOfRecords) {
+    private static void generateCsvFileInMemory(int numberOfRecords) {
         String[] headers = {"ID", "NAME", "SALARY", "JOIN_DATE", "ACTIVE"};
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -87,7 +85,5 @@ public class CSVFileGenerator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return outputStream;
     }
 }
