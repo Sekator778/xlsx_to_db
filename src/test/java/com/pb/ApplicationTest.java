@@ -27,8 +27,7 @@ class ApplicationTest {
     void testCSV() throws Exception {
         File tempFile = generateTempCsvFile();
 
-        String[] args = {tempFile.getAbsolutePath()};
-        Application.main(args);
+        new Application().processFile(tempFile.getAbsolutePath());
 
         String tableName = TableNameUtil.createTableNameAndExtension(tempFile.getName()).getFirst();
 
