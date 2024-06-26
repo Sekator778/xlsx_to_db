@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class CSVFileGenerator {
 
-    public static void main(String[] args) {
+    public void CSVFileGenerate(String[] args) {
         if (args.length < 1) {
             System.out.println("Usage: CSVFileGenerator <saveLocation> [<filePath>]");
             return;
@@ -34,7 +34,7 @@ public class CSVFileGenerator {
         }
     }
 
-    public static void generateCsvFileOnDisk(String csvFilePath, int numberOfRecords) {
+    public void generateCsvFileOnDisk(String csvFilePath, int numberOfRecords) {
         String[] headers = {"ID", "NAME", "SALARY", "JOIN_DATE", "ACTIVE"};
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -61,7 +61,7 @@ public class CSVFileGenerator {
         }
     }
 
-    private static void generateCsvFileInMemory(int numberOfRecords) {
+    private void generateCsvFileInMemory(int numberOfRecords) {
         String[] headers = {"ID", "NAME", "SALARY", "JOIN_DATE", "ACTIVE"};
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
