@@ -11,6 +11,7 @@ test:
     stage: test
     script:
         - echo "Running tests"
+        - ./mvnw test
     only:
         - merge_requests
 
@@ -18,7 +19,7 @@ tag_version:
     stage: tag_version
     script:
         - echo "Extracting version from pom.xml"
-        - export VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        - export VERSION=$(sed -n 's|.*<version>\(.*\)</version>.*|\1|p' pom.xml | head -n 1)
         - echo "Tagging version $VERSION"
         - git config --global user.email "oleksandr.nikolaichuk@privatbank.ua"
         - git config --global user.name "dn070578noi"
