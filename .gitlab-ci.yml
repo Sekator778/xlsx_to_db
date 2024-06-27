@@ -1,8 +1,7 @@
-image: maven:3.6.3-jdk-11
+image: maven:3.6.3-jdk-21
 
 stages:
     - test
-    - tag_version
 
 variables:
     GIT_STRATEGY: clone
