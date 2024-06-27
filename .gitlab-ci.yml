@@ -1,8 +1,7 @@
-image: maven:3.6.3-jdk-11
+image: amazoncorretto:21
 
 stages:
     - test
-    - tag_version
 
 variables:
     GIT_STRATEGY: clone
@@ -15,20 +14,20 @@ test:
     only:
         - merge_requests
 
-tag_version:
-    stage: tag_version
-    script:
-        - echo "Extracting version from pom.xml"
-        - export VERSION=$(sed -n 's|.*<version>\(.*\)</version>.*|\1|p' pom.xml | head -n 1)
-        - echo "Tagging version $VERSION"
-        - git config --global user.email "oleksandr.nikolaichuk@privatbank.ua"
-        - git config --global user.name "dn070578noi"
-        - export COMMIT_HASH=$(git rev-parse HEAD)
-        - export TAG_MESSAGE="Release version $VERSION based on commit $COMMIT_HASH"
-        - git tag -a "$VERSION" -m "$TAG_MESSAGE" "$COMMIT_HASH"
-        - git push https://gitlab-ci-token:${GITLAB_ACCESS_TOKEN}@git.privatbank.ua/DN171M000004/dn171m000004_20/tf-avbo/utility/xlsx_to_db.git $VERSION
-        - echo "Tagged version $VERSION"
-    only:
-        - main
-    except:
-        - tags
+#tag_version:
+#    stage: tag_version
+#    script:
+#        - echo "Extracting version from pom.xml"
+#        - export VERSION=$(sed -n 's|.*<version>\(.*\)</version>.*|\1|p' pom.xml | head -n 1)
+#        - echo "Tagging version $VERSION"
+#        - git config --global user.email "oleksandr.nikolaichuk@privatbank.ua"
+#        - git config --global user.name "dn070578noi"
+#        - export COMMIT_HASH=$(git rev-parse HEAD)
+#        - export TAG_MESSAGE="Release version $VERSION based on commit $COMMIT_HASH"
+#        - git tag -a "$VERSION" -m "$TAG_MESSAGE" "$COMMIT_HASH"
+#        - git push https://gitlab-ci-token:${GITLAB_ACCESS_TOKEN}@git.privatbank.ua/DN171M000004/dn171m000004_20/tf-avbo/utility/xlsx_to_db.git $VERSION
+#        - echo "Tagged version $VERSION"
+#    only:
+#        - main
+#    except:
+#        - tags
