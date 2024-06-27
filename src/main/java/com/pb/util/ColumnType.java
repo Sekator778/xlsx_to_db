@@ -1,6 +1,7 @@
 package com.pb.util;
 
 public enum ColumnType {
+    INTEGER("INTEGER"),
     NUMERIC("NUMERIC"),
     TIMESTAMP("TIMESTAMP"),
     BOOLEAN("BOOLEAN"),

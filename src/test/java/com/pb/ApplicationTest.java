@@ -116,19 +116,19 @@ class ApplicationTest {
 
     private File generateTempCsvFile() throws IOException {
         File tempFile = File.createTempFile("test", ".csv");
-        new CSVFileGenerator().generateCsvFileOnDisk(tempFile.getAbsolutePath(), 10);
+        new CSVFileGenerator().generateCsvFileOnDisk(tempFile.getAbsolutePath(), 10000);
         return tempFile;
     }
 
     private File generateTempDbfFile() throws IOException {
         File tempFile = File.createTempFile("test", ".dbf");
-        new DbfFileGenerator().generateDbfFileOnDisk(tempFile.getAbsolutePath(), 10);
+        new DbfFileGenerator().generateDbfFileOnDisk(tempFile.getAbsolutePath(), 10000);
         return tempFile;
     }
 
     private File generateTempXlsxFile() throws IOException {
         File tempFile = File.createTempFile("test", ".xlsx");
-        new ExcelFileGenerator().generateXlsxFileOnDisk(tempFile.getAbsolutePath(), 10);
+        new ExcelFileGenerator().generateXlsxFileOnDisk(tempFile.getAbsolutePath(), 10000);
         return tempFile;
     }
 }

@@ -17,6 +17,7 @@ import static com.pb.util.ColumnType.BOOLEAN;
 import static com.pb.util.ColumnType.NUMERIC;
 import static com.pb.util.ColumnType.TEXT;
 import static com.pb.util.ColumnType.TIMESTAMP;
+import static com.pb.util.ColumnTypeUtil.getDefaultTypeForHeader;
 
 public class ExcelFileReader implements FileReader {
     private Map<Integer, String> headers;
@@ -70,17 +71,5 @@ public class ExcelFileReader implements FileReader {
             case BOOLEAN -> BOOLEAN;
             default -> TEXT;
         };
-    }
-
-    private String getDefaultTypeForHeader(String header) {
-        if (header == null) {
-            return TEXT.toString();
-        } else if (header.equalsIgnoreCase("FIO")) {
-            return TEXT.toString();
-        } else if (header.toLowerCase().contains("id")) {
-            return NUMERIC.toString();
-        } else {
-            return TEXT.toString();
-        }
     }
 }
