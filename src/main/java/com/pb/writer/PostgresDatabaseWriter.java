@@ -29,7 +29,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
 
     public static final int BATCH_SIZE = 2500;
     private static final Logger log = Logger.getLogger(PostgresDatabaseWriter.class.getName());
-    private static final Pattern VALID_SQL_IDENTIFIER = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
+    private static final Pattern VALID_SQL_IDENTIFIER = Pattern.compile("[\\p{L}_][\\p{L}\\p{N}_\\s()]*");
 
     @Override
     public void createTable(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName) throws Exception {
@@ -95,7 +95,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             int total = 0;
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue;
+                if (row.getRowNum() == 0 || isRowEmpty(row)) continue;
                 for (int i = 0; i < headers.size(); i++) {
                     Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
                     String columnType = columnTypes.get(i);
@@ -117,6 +117,20 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             }
             log.info("Total " + total + " rows have been inserted into the table.");
         }
+    }
+
+    /**
+     * Checks if the row is empty.
+     * use in insertExcelData method
+     */
+    private boolean isRowEmpty(Row row) {
+        for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
+            Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void insertDbfData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, InputStream inputStream, Connection connection) throws Exception {
