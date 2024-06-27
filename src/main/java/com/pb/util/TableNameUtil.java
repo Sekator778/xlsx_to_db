@@ -15,10 +15,20 @@ public class TableNameUtil {
         }
         int lastDotIndex = fileName.lastIndexOf('.');
         if (lastDotIndex == -1) {
-            return new Pair<>(fileName, ""); // No extension found
+           throw new IllegalArgumentException("File name must have an extension");
         }
         String name = fileName.substring(0, lastDotIndex);
         String extension = fileName.substring(lastDotIndex + 1);
-        return new Pair<>(name, extension);
+        return new Pair<>(sanitizeName(name), extension);
+    }
+
+    /**
+     * Sanitizes the name by replacing spaces with underscores and performing other necessary transformations.
+     *
+     * @param name The name to sanitize.
+     * @return The sanitized name.
+     */
+    private static String sanitizeName(String name) {
+        return name.replaceAll("\\s+", "_");
     }
 }

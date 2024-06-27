@@ -8,6 +8,7 @@ import com.pb.writer.PostgresDatabaseWriter;
 
 import org.apache.commons.math3.util.Pair;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.Map;
@@ -29,15 +30,15 @@ public class FileProcessor {
             default -> throw new IllegalArgumentException("Unsupported file extension: " + fileExtension);
         };
 
-        try (InputStream inputStream = new java.io.FileInputStream(filePath)) {
+        try (InputStream inputStream = new FileInputStream(filePath)) {
             Map<Integer, String> headers = fileReader.readHeaders(inputStream);
             inputStream.close();
 
-            try (InputStream inputStreamForColumnTypes = new java.io.FileInputStream(filePath)) {
+            try (InputStream inputStreamForColumnTypes = new FileInputStream(filePath)) {
                 Map<Integer, String> columnTypes = fileReader.determineColumnTypes(inputStreamForColumnTypes);
                 databaseWriter.createTable(headers, columnTypes, tableName);
 
-                try (InputStream inputStreamForData = new java.io.FileInputStream(filePath)) {
+                try (InputStream inputStreamForData = new FileInputStream(filePath)) {
                     databaseWriter.insertData(headers, columnTypes, tableName, fileExtension, inputStreamForData);
                 }
             }

@@ -12,7 +12,7 @@ import java.util.Map;
 public class DatabaseConnectionManager {
 
     private static Map<String, Map<String, String>> properties;
-
+    /* TODO rewrite for use datasource in main class */
     public static void loadProperties(String configFileName) {
         Yaml yaml = new Yaml();
         try (InputStream input = DatabaseConnectionManager.class.getClassLoader().getResourceAsStream(configFileName)) {
