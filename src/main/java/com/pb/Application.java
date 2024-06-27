@@ -6,6 +6,7 @@ import com.pb.filereader.DbfFileReader;
 import com.pb.filereader.ExcelFileReader;
 import com.pb.filereader.FileReader;
 import com.pb.service.FileProcessingService;
+import com.pb.util.DatabaseConnectionManager;
 import com.pb.util.TableNameUtil;
 import com.pb.writer.PostgresDatabaseWriter;
 import org.apache.commons.math3.util.Pair;
@@ -22,10 +23,10 @@ public class Application {
      * @param source the path to the source file
      * @throws Exception if an error occurs during file processing or database operations
      */
-    public void processFile(String source) throws Exception {
+    public void processFile(String source, String properties) throws Exception {
         File file = new File(source);
         Pair<String, String> tableNameAndExtension = TableNameUtil.createTableNameAndExtension(file.getName());
-
+        DatabaseConnectionManager.loadProperties(properties);
         FileReader fileReader = switch (tableNameAndExtension.getSecond().toLowerCase()) {
             case "xlsx" -> new ExcelFileReader();
             case "dbf" -> new DbfFileReader();
@@ -41,5 +42,19 @@ public class Application {
         FileProcessingService fileProcessingService = new FileProcessingService(fileReader, fileSystemDataSource, databaseWriter);
 
         fileProcessingService.processFile(source, file.getName());
+    }
+
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Usage: Application <filePath>");
+            return;
+        }
+
+        String filePath = args[0];
+        try {
+            new Application().processFile(filePath, "application.yml");
+        } catch (Exception e) {
+            log.severe("An error occurred during file processing: " + e.getMessage());
+        }
     }
 }
