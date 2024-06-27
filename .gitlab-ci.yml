@@ -1,4 +1,4 @@
-image: maven:3.6.3-jdk-21
+#image: maven:3.6.3-jdk-21
 
 stages:
     - test
@@ -10,7 +10,7 @@ test:
     stage: test
     script:
         - echo "Running tests"
-        - ./mvnw test
+        - export JAVA_HOME="/sybase/java/latest21" && ./mvnw test
     only:
         - merge_requests
 
