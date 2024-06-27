@@ -21,16 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationTest {
 
-    @BeforeAll
-    static void setup() {
-        DatabaseConnectionManager.loadProperties("application-test.yml");
-    }
-
     @Test
     void testCSV() throws Exception {
         File tempFile = generateTempCsvFile();
 
-        new Application().processFile(tempFile.getAbsolutePath());
+        new Application().processFile(tempFile.getAbsolutePath(), "application-test.yml");
 
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
@@ -61,7 +56,7 @@ class ApplicationTest {
     void testDBF() throws Exception {
         File tempFile = generateTempDbfFile();
 
-        new Application().processFile(tempFile.getAbsolutePath());
+        new Application().processFile(tempFile.getAbsolutePath(), "application-test.yml");
 
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
@@ -92,7 +87,7 @@ class ApplicationTest {
     void testXLSX() throws Exception {
         File tempFile = generateTempXlsxFile();
 
-        new Application().processFile(tempFile.getAbsolutePath());
+        new Application().processFile(tempFile.getAbsolutePath(), "application-test.yml");
 
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
