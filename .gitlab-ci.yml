@@ -1,33 +1,22 @@
-image: amazoncorretto:21
-
 stages:
-    - test
+    - build
+    - release
 
 variables:
-    GIT_STRATEGY: clone
+    MAVEN_CLI_OPTS: "-B -U -DskipTests"
 
-test:
-    stage: test
+before_script:
+    - 'export PATH=$PATH:$CI_PROJECT_DIR/.m2/repository/org/apache/maven/plugins/maven-release-plugin/3.0.0-M1'
+
+build:
+    stage: build
     script:
-        - echo "Running tests"
-        - ./mvnw test
-    only:
-        - merge_requests
+        - mvn $MAVEN_CLI_OPTS clean install
 
-#tag_version:
-#    stage: tag_version
-#    script:
-#        - echo "Extracting version from pom.xml"
-#        - export VERSION=$(sed -n 's|.*<version>\(.*\)</version>.*|\1|p' pom.xml | head -n 1)
-#        - echo "Tagging version $VERSION"
-#        - git config --global user.email "sekator778@gmail.com"
-#        - git config --global user.name "sekator778"
-#        - export COMMIT_HASH=$(git rev-parse HEAD)
-#        - export TAG_MESSAGE="Release version $VERSION based on commit $COMMIT_HASH"
-#        - git tag -a "$VERSION" -m "$TAG_MESSAGE" "$COMMIT_HASH"
-#        - git push https://gitlab-ci-token:${GITLAB_ACCESS_TOKEN}@github.com/sekator778/xlsx-to-db.git $VERSION
-#        - echo "Tagged version $VERSION"
-#    only:
-#        - main
-#    except:
-#        - tags
+release:
+    stage: release
+    script:
+        - mvn $MAVEN_CLI_OPTS release:prepare -DreleaseVersion=1.1.1 -Dtag=1.1.1 -DdevelopmentVersion=1.1.2-SNAPSHOT
+        - mvn $MAVEN_CLI_OPTS release:perform
+    only:
+        - release_test
