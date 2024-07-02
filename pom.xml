@@ -94,8 +94,9 @@
     </build>
 
     <scm>
-        <connection>scm:git:https://github.com/sekator778/xlsx-to-db</connection>
+        <connection>scm:git:ssh://github.com/sekator778/xlsx-to-db</connection>
         <developerConnection>scm:git:ssh://github.com/sekator778/xlsx-to-db</developerConnection>
-        <tag>1.1.1</tag>
+        <tag>HEAD</tag>
     </scm>
+
 </project>
