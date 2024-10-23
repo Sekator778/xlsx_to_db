@@ -73,12 +73,16 @@ public class ExcelToDatabase {
     }
 
     private static String getColumnType(Cell cell) {
-        return switch (cell.getCellType()) {
-            case NUMERIC -> DateUtil.isCellDateFormatted(cell) ? "TIMESTAMP" : "NUMERIC";
-            case BOOLEAN -> "BOOLEAN";
-            case BLANK -> "TEXT"; // Default type for blank cells
-            default -> "TEXT";
-        };
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return DateUtil.isCellDateFormatted(cell) ? "TIMESTAMP" : "NUMERIC";
+            case BOOLEAN:
+                return "BOOLEAN";
+            case BLANK:
+                return "TEXT"; // Default type for blank cells
+            default:
+                return "TEXT";
+        }
     }
 
     private static String determineMoreGeneralType(String currentType, String newType) {
@@ -113,7 +117,9 @@ public class ExcelToDatabase {
             insertSQL.append("\"").append(columnName).append("\",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
-        insertSQL.append("?,".repeat(headers.size()));
+        for (int i = 0; i < headers.size(); i++) {
+            insertSQL.append("?,");
+        }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(")");
 
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);

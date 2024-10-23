@@ -87,7 +87,9 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             insertSQL.append(columnName).append(",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
-        insertSQL.append("?,".repeat(headers.size()));
+        for (int i = 0; i < headers.size(); i++) {
+            insertSQL.append("?,");
+        }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(")");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL.toString())) {
@@ -142,7 +144,9 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             insertSQL.append(columnName).append(",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
-        insertSQL.append("?,".repeat(headers.size()));
+        for (int i = 0; i < headers.size(); i++) {
+            insertSQL.append("?,");
+        }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(")");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL.toString())) {
@@ -215,7 +219,9 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             insertSQL.append(columnName).append(",");
         }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(") VALUES (");
-        insertSQL.append("?,".repeat(headers.size()));
+        for (int i = 0; i < headers.size(); i++) {
+            insertSQL.append("?,");
+        }
         insertSQL.deleteCharAt(insertSQL.length() - 1).append(")");
         return insertSQL.toString();
     }
@@ -249,18 +255,27 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
             preparedStatement.setNull(parameterIndex, getSqlType(columnType));
             return;
         }
+
         switch (columnType) {
-            case "INTEGER" -> {
+            case "INTEGER":
                 if (cell.getCellType() == CellType.NUMERIC && cell.getNumericCellValue() % 1 == 0) {
                     preparedStatement.setInt(parameterIndex, (int) cell.getNumericCellValue());
                 } else {
                     preparedStatement.setNull(parameterIndex, java.sql.Types.INTEGER);
                 }
-            }
-            case "NUMERIC" -> preparedStatement.setDouble(parameterIndex, cell.getNumericCellValue());
-            case "TIMESTAMP" -> preparedStatement.setTimestamp(parameterIndex, new Timestamp(cell.getDateCellValue().getTime()));
-            case "BOOLEAN" -> preparedStatement.setBoolean(parameterIndex, cell.getBooleanCellValue());
-            default -> preparedStatement.setString(parameterIndex, getCellValueAsString(cell));
+                break;
+            case "NUMERIC":
+                preparedStatement.setDouble(parameterIndex, cell.getNumericCellValue());
+                break;
+            case "TIMESTAMP":
+                preparedStatement.setTimestamp(parameterIndex, new Timestamp(cell.getDateCellValue().getTime()));
+                break;
+            case "BOOLEAN":
+                preparedStatement.setBoolean(parameterIndex, cell.getBooleanCellValue());
+                break;
+            default:
+                preparedStatement.setString(parameterIndex, getCellValueAsString(cell));
+                break;
         }
     }
 
@@ -305,23 +320,33 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
     }
 
     private int getSqlType(String columnType) {
-        return switch (columnType) {
-            case "INTEGER" -> java.sql.Types.INTEGER;
-            case "NUMERIC" -> java.sql.Types.NUMERIC;
-            case "TIMESTAMP" -> java.sql.Types.TIMESTAMP;
-            case "BOOLEAN" -> java.sql.Types.BOOLEAN;
-            default -> java.sql.Types.VARCHAR;
-        };
+        switch (columnType) {
+            case "INTEGER":
+                return java.sql.Types.INTEGER;
+            case "NUMERIC":
+                return java.sql.Types.NUMERIC;
+            case "TIMESTAMP":
+                return java.sql.Types.TIMESTAMP;
+            case "BOOLEAN":
+                return java.sql.Types.BOOLEAN;
+            default:
+                return java.sql.Types.VARCHAR;
+        }
     }
 
     private String getCellValueAsString(Cell cell) {
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> DateUtil.isCellDateFormatted(cell) ? cell.getDateCellValue().toString() : String.valueOf(cell.getNumericCellValue());
-            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
-            case FORMULA -> cell.getCellFormula();
-            default -> "";
-        };
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return DateUtil.isCellDateFormatted(cell) ? cell.getDateCellValue().toString() : String.valueOf(cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "";
+        }
     }
 
     private void validateSqlIdentifier(String identifier) {

@@ -66,10 +66,13 @@ public class ExcelFileReader implements FileReader {
     }
 
     private ColumnType getColumnType(Cell cell) {
-        return switch (cell.getCellType()) {
-            case NUMERIC -> DateUtil.isCellDateFormatted(cell) ? TIMESTAMP : NUMERIC;
-            case BOOLEAN -> BOOLEAN;
-            default -> TEXT;
-        };
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return DateUtil.isCellDateFormatted(cell) ? ColumnType.TIMESTAMP : ColumnType.NUMERIC;
+            case BOOLEAN:
+                return ColumnType.BOOLEAN;
+            default:
+                return ColumnType.TEXT;
+        }
     }
 }

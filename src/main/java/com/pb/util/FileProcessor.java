@@ -23,12 +23,19 @@ public class FileProcessor {
         String tableName = tableNameAndExtension.getFirst();
         String fileExtension = tableNameAndExtension.getSecond().toLowerCase();
 
-        fileReader = switch (fileExtension) {
-            case "xlsx" -> new ExcelFileReader();
-            case "dbf" -> new DbfFileReader();
-            case "csv" -> new CsvFileReader();
-            default -> throw new IllegalArgumentException("Unsupported file extension: " + fileExtension);
-        };
+        switch (fileExtension) {
+            case "xlsx":
+                fileReader = new ExcelFileReader();
+                break;
+            case "dbf":
+                fileReader = new DbfFileReader();
+                break;
+            case "csv":
+                fileReader = new CsvFileReader();
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported file extension: " + fileExtension);
+        }
 
         try (InputStream inputStream = new FileInputStream(filePath)) {
             Map<Integer, String> headers = fileReader.readHeaders(inputStream);

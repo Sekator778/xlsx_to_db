@@ -27,15 +27,23 @@ public class Application {
         File file = new File(source);
         Pair<String, String> tableNameAndExtension = TableNameUtil.createTableNameAndExtension(file.getName());
         DatabaseConnectionManager.loadProperties(properties);
-        FileReader fileReader = switch (tableNameAndExtension.getSecond().toLowerCase()) {
-            case "xlsx" -> new ExcelFileReader();
-            case "dbf" -> new DbfFileReader();
-            case "csv" -> new CsvFileReader();
-            default -> {
-                log.severe("Unsupported file extension: " + tableNameAndExtension.getSecond());
-                throw new IllegalArgumentException("Unsupported file extension: " + tableNameAndExtension.getSecond());
-            }
-        };
+        FileReader fileReader;
+        String fileExtension = tableNameAndExtension.getSecond().toLowerCase();
+
+        switch (fileExtension) {
+            case "xlsx":
+                fileReader = new ExcelFileReader();
+                break;
+            case "dbf":
+                fileReader = new DbfFileReader();
+                break;
+            case "csv":
+                fileReader = new CsvFileReader();
+                break;
+            default:
+                log.severe("Unsupported file extension: " + fileExtension);
+                throw new IllegalArgumentException("Unsupported file extension: " + fileExtension);
+        }
 
         FileSystemDataSource fileSystemDataSource = new FileSystemDataSource();
         PostgresDatabaseWriter databaseWriter = new PostgresDatabaseWriter();
