@@ -72,26 +72,23 @@ public class DbfFileReader implements FileReader {
      * @return The determined column type.
      */
     private ColumnType determineColumnType(Object value) {
-        switch (value) {
-            case null -> {
-                return TEXT;
+        if (value == null) {
+            return ColumnType.TEXT;
+        } else if (value instanceof Number) {
+            // Check if it's a decimal number (contains a decimal point)
+            if (value.toString().contains(".")) {
+                return ColumnType.NUMERIC;
+            } else {
+                return ColumnType.INTEGER;
             }
-            case Number number -> {
-                if (value.toString().contains(".")) {
-                    return NUMERIC;
-                } else {
-                    return INTEGER;
-                }
-            }
-            case Boolean b -> {
-                return BOOLEAN;
-            }
-            case java.util.Date date -> {
-                return TIMESTAMP;
-            }
-            default -> {
-            }
+        } else if (value instanceof Boolean) {
+            return ColumnType.BOOLEAN;
+        } else if (value instanceof java.util.Date) {
+            return ColumnType.TIMESTAMP;
         }
-        return TEXT;
+
+        // Default case
+        return ColumnType.TEXT;
     }
+
 }

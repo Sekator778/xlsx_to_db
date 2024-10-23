@@ -8,6 +8,7 @@ import com.pb.writer.DatabaseWriter;
 import org.apache.commons.math3.util.Pair;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -29,15 +30,26 @@ public class FileProcessingService {
         Pair<String, String> tableNameAndExtension = createTableNameAndExtension(fileName);
 
         try (InputStream inputStream = dataSource.getInputStream(source)) {
-            byte[] fileData = inputStream.readAllBytes();
+            // Read all bytes using a ByteArrayOutputStream instead of readAllBytes()
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, length);
+            }
+            byte[] fileData = byteArrayOutputStream.toByteArray();
 
+            // Create multiple InputStreams from the byte array
             try (InputStream headerStream = new ByteArrayInputStream(fileData);
                  InputStream columnTypeStream = new ByteArrayInputStream(fileData);
                  InputStream dataStream = new ByteArrayInputStream(fileData)) {
 
+                // Process headers, sanitize, and column types
                 Map<Integer, String> headers = fileReader.readHeaders(headerStream);
                 headers.replaceAll((k, v) -> sanitizeHeader(v));
                 Map<Integer, String> columnTypes = fileReader.determineColumnTypes(columnTypeStream);
+
+                // Create table and insert data
                 databaseWriter.createTable(headers, columnTypes, tableNameAndExtension.getFirst());
                 databaseWriter.insertData(headers, columnTypes, tableNameAndExtension.getFirst(), tableNameAndExtension.getSecond(), dataStream);
             }
