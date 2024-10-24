@@ -66,7 +66,7 @@ Coordinates the process of reading the file and writing to the database:
     - Execute the main class with the file path as an argument.
 
    ```sh
-   java -cp .:path/to/dependencies/* com.pb.Application path/to/yourfile.xlsx
+   java -cp .:path/to/dependencies/* com.pb.App path/to/yourfile.xlsx
    ```
 
 3. **Check the PostgreSQL Database**:

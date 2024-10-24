@@ -3,7 +3,6 @@ package com.pb.writer;
 import com.linuxense.javadbf.DBFReader;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
-import com.pb.util.DatabaseConnectionManager;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -32,7 +31,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
     private static final Pattern VALID_SQL_IDENTIFIER = Pattern.compile("[\\p{L}_][\\p{L}\\p{N}_\\s()]*");
 
     @Override
-    public void createTable(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName) throws Exception {
+    public void createTable(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, Connection connection) throws Exception {
         validateSqlIdentifier(tableName);
         StringBuilder createTableSQL = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + " (");
         for (Map.Entry<Integer, String> entry : headers.entrySet()) {
@@ -44,37 +43,32 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
         }
         createTableSQL.deleteCharAt(createTableSQL.length() - 1).append(")");
 
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             Statement statement = connection.createStatement()) {
-            String dropTableSQL = "DROP TABLE IF EXISTS " + tableName;
-            log.info("Dropping table with SQL: " + dropTableSQL);
-            statement.execute(dropTableSQL);
-            log.info("Creating table with SQL: " + createTableSQL);
-            statement.execute(createTableSQL.toString());
-        }
+        Statement statement = connection.createStatement();
+        String dropTableSQL = "DROP TABLE IF EXISTS " + tableName;
+        log.info("Dropping table with SQL: " + dropTableSQL);
+        statement.execute(dropTableSQL);
+        log.info("Creating table with SQL: " + createTableSQL);
+        statement.execute(createTableSQL.toString());
     }
 
     @Override
-    public void insertData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, String extension, InputStream inputStream) throws Exception {
-        try (Connection connection = DatabaseConnectionManager.getConnection()) {
-            connection.setAutoCommit(false);
+    public void insertData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, String extension, InputStream inputStream, Connection connection) throws Exception {
+        connection.setAutoCommit(false);
 
-            switch (extension.toLowerCase()) {
-                case "xlsx":
-                    insertExcelData(headers, columnTypes, tableName, inputStream, connection);
-                    break;
-                case "dbf":
-                    insertDbfData(headers, columnTypes, tableName, inputStream, connection);
-                    break;
-                case "csv":
-                    insertCsvData(headers, columnTypes, tableName, inputStream, connection);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported file extension: " + extension);
-            }
-
-            connection.commit();
+        switch (extension.toLowerCase()) {
+            case "xlsx":
+                insertExcelData(headers, columnTypes, tableName, inputStream, connection);
+                break;
+            case "dbf":
+                insertDbfData(headers, columnTypes, tableName, inputStream, connection);
+                break;
+            case "csv":
+                insertCsvData(headers, columnTypes, tableName, inputStream, connection);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported file extension: " + extension);
         }
+        connection.commit();
     }
 
     private void insertExcelData(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, InputStream inputStream, Connection connection) throws Exception {

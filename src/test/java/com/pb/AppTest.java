@@ -4,8 +4,8 @@ import com.pb.util.CSVFileGenerator;
 import com.pb.util.DatabaseConnectionManager;
 import com.pb.util.DbfFileGenerator;
 import com.pb.util.ExcelFileGenerator;
+import com.pb.util.FileProcessor;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -19,13 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ApplicationTest {
+class AppTest {
 
     @Test
     void testCSV() throws Exception {
         File tempFile = generateTempCsvFile();
+        DatabaseConnectionManager.loadProperties("application-test.yml");
 
-        new Application().processFile(tempFile.getAbsolutePath(), "application-test.yml");
+        FileProcessor.processFile(tempFile, DatabaseConnectionManager.getConnection());
 
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
@@ -56,8 +57,9 @@ class ApplicationTest {
     void testDBF() throws Exception {
         File tempFile = generateTempDbfFile();
 
-        new Application().processFile(tempFile.getAbsolutePath(), "application-test.yml");
+        DatabaseConnectionManager.loadProperties("application-test.yml");
 
+        FileProcessor.processFile(tempFile, DatabaseConnectionManager.getConnection());
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
         try (Connection connection = DatabaseConnectionManager.getConnection();
@@ -87,8 +89,9 @@ class ApplicationTest {
     void testXLSX() throws Exception {
         File tempFile = generateTempXlsxFile();
 
-        new Application().processFile(tempFile.getAbsolutePath(), "application-test.yml");
+        DatabaseConnectionManager.loadProperties("application-test.yml");
 
+        FileProcessor.processFile(tempFile, DatabaseConnectionManager.getConnection());
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
         try (Connection connection = DatabaseConnectionManager.getConnection();

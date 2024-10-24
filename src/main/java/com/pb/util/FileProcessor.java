@@ -4,23 +4,26 @@ import com.pb.filereader.CsvFileReader;
 import com.pb.filereader.DbfFileReader;
 import com.pb.filereader.ExcelFileReader;
 import com.pb.filereader.FileReader;
+import com.pb.service.FileProcessingService;
 import com.pb.writer.PostgresDatabaseWriter;
 
 import org.apache.commons.math3.util.Pair;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.File;
 import java.sql.Connection;
-import java.util.Map;
+import java.util.logging.Logger;
 
 public class FileProcessor {
+    private static final Logger log = Logger.getLogger(FileProcessor.class.getName());
 
-    public static void processFile(String filePath, Connection connection) throws Exception {
+    /**
+     * Processes a file and writes its data to a PostgreSQL database.
+     *
+     * @param file the file
+     */
+    public static void processFile(File file, Connection connection) {
+        Pair<String, String> tableNameAndExtension = TableNameUtil.createTableNameAndExtension(file.getName());
         FileReader fileReader;
-        PostgresDatabaseWriter databaseWriter = new PostgresDatabaseWriter();
-
-        Pair<String, String> tableNameAndExtension = TableNameUtil.createTableNameAndExtension(filePath);
-        String tableName = tableNameAndExtension.getFirst();
         String fileExtension = tableNameAndExtension.getSecond().toLowerCase();
 
         switch (fileExtension) {
@@ -34,21 +37,18 @@ public class FileProcessor {
                 fileReader = new CsvFileReader();
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported file extension: " + fileExtension);
+                log.severe("Unsupported file extension: " + fileExtension);
+                return;
         }
 
-        try (InputStream inputStream = new FileInputStream(filePath)) {
-            Map<Integer, String> headers = fileReader.readHeaders(inputStream);
-            inputStream.close();
-
-            try (InputStream inputStreamForColumnTypes = new FileInputStream(filePath)) {
-                Map<Integer, String> columnTypes = fileReader.determineColumnTypes(inputStreamForColumnTypes);
-                databaseWriter.createTable(headers, columnTypes, tableName);
-
-                try (InputStream inputStreamForData = new FileInputStream(filePath)) {
-                    databaseWriter.insertData(headers, columnTypes, tableName, fileExtension, inputStreamForData);
-                }
-            }
+        PostgresDatabaseWriter databaseWriter = new PostgresDatabaseWriter();
+        FileProcessingService fileProcessingService = new FileProcessingService(fileReader, databaseWriter);
+        String fileName = tableNameAndExtension.getFirst();
+        String extension = tableNameAndExtension.getSecond();
+        try {
+            fileProcessingService.processFile(file, fileName, extension, connection);
+        } catch (Exception e) {
+            log.severe("An error occurred during file processing: " + e.getMessage());
         }
     }
 }

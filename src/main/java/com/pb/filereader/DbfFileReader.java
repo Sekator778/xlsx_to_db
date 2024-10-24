@@ -1,6 +1,5 @@
 package com.pb.filereader;
 
-import com.linuxense.javadbf.DBFDataType;
 import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.pb.util.ColumnType;
@@ -11,11 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static com.pb.util.ColumnType.BOOLEAN;
-import static com.pb.util.ColumnType.NUMERIC;
 import static com.pb.util.ColumnType.TEXT;
-import static com.pb.util.ColumnType.TIMESTAMP;
-import static com.pb.util.ColumnType.INTEGER;
 
 public class DbfFileReader implements FileReader {
     private static final Logger logger = Logger.getLogger(DbfFileReader.class.getName());
