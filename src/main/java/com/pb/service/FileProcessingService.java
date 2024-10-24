@@ -22,7 +22,7 @@ public class FileProcessingService {
         this.databaseWriter = databaseWriter;
     }
 
-    public void processFile(File file, String fileName, String extension, Connection connection) throws Exception {
+    public void processFile(File file, String tableName, String extension, Connection connection) throws Exception {
 
         try (InputStream fileInputStream = Files.newInputStream(file.toPath())) {
             // Read all bytes using a ByteArrayOutputStream
@@ -45,8 +45,8 @@ public class FileProcessingService {
                 Map<Integer, String> columnTypes = fileReader.determineColumnTypes(columnTypeStream);
 
                 // Create table and insert data using connection
-                databaseWriter.createTable(headers, columnTypes, fileName, connection);
-                databaseWriter.insertData(headers, columnTypes, fileName, extension, dataStream, connection);
+                databaseWriter.createTable(headers, columnTypes, tableName, connection);
+                databaseWriter.insertData(headers, columnTypes, tableName, extension, dataStream, connection);
             }
         }
     }
