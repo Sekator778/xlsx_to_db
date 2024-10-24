@@ -1,7 +1,6 @@
 package com.pb;
 
 import com.pb.util.DatabaseConnectionManager;
-import com.pb.util.FileProcessor;
 
 import java.io.File;
 import java.util.logging.Logger;
@@ -20,6 +19,6 @@ public class App {
         String filePath = args[0];
         File file = new File(filePath);
 
-        FileProcessor.processFile(file, DatabaseConnectionManager.getConnection(), "test2");
+        FileToDatabaseWriter.processFile(file, DatabaseConnectionManager.getConnection(), null);
     }
 }
