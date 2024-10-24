@@ -4,7 +4,6 @@ import com.pb.util.CSVFileGenerator;
 import com.pb.util.DatabaseConnectionManager;
 import com.pb.util.DbfFileGenerator;
 import com.pb.util.ExcelFileGenerator;
-import com.pb.util.FileProcessor;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +25,7 @@ class AppTest {
         File tempFile = generateTempCsvFile();
         DatabaseConnectionManager.loadProperties("application-test.yml");
 
-        FileProcessor.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
+        FileToDatabaseWriter.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
 
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
@@ -59,7 +58,7 @@ class AppTest {
 
         DatabaseConnectionManager.loadProperties("application-test.yml");
 
-        FileProcessor.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
+        FileToDatabaseWriter.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
         try (Connection connection = DatabaseConnectionManager.getConnection();
@@ -91,7 +90,7 @@ class AppTest {
 
         DatabaseConnectionManager.loadProperties("application-test.yml");
 
-        FileProcessor.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
+        FileToDatabaseWriter.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
         try (Connection connection = DatabaseConnectionManager.getConnection();

@@ -1,18 +1,20 @@
-package com.pb.util;
+package com.pb;
 
 import com.pb.filereader.CsvFileReader;
 import com.pb.filereader.DbfFileReader;
 import com.pb.filereader.ExcelFileReader;
 import com.pb.filereader.FileReader;
 import com.pb.service.FileProcessingService;
+import com.pb.util.FileUtils;
+import com.pb.util.TableNameUtil;
 import com.pb.writer.PostgresDatabaseWriter;
 
 import java.io.File;
 import java.sql.Connection;
 import java.util.logging.Logger;
 
-public class FileProcessor {
-    private static final Logger log = Logger.getLogger(FileProcessor.class.getName());
+public class FileToDatabaseWriter {
+    private static final Logger log = Logger.getLogger(FileToDatabaseWriter.class.getName());
 
     /**
      * Processes a file and writes its data to a PostgreSQL database.
@@ -20,12 +22,15 @@ public class FileProcessor {
      * @param file the file
      */
     public static void processFile(File file, Connection connection, String tableName) {
-        String fileExtension;
+        String fileExtension = TableNameUtil.createTableNameAndExtension(file.getName()).getSecond().toLowerCase();
+        if (fileExtension.toLowerCase().endsWith("zip")) {
+            file = FileUtils.unzip(file);
+        }
+        fileExtension = TableNameUtil.createTableNameAndExtension(file.getName()).getSecond().toLowerCase();
         if (tableName == null) {
             tableName = TableNameUtil.createTableNameAndExtension(file.getName()).getFirst();
         }
         FileReader fileReader;
-        fileExtension = TableNameUtil.createTableNameAndExtension(file.getName()).getSecond().toLowerCase();
 
         switch (fileExtension) {
             case "xlsx":
