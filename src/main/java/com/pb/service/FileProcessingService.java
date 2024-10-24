@@ -1,40 +1,35 @@
 package com.pb.service;
 
-import com.pb.datasource.DataSource;
 import com.pb.filereader.FileReader;
-import com.pb.util.EscapeUtil;
 import com.pb.writer.DatabaseWriter;
-
-import org.apache.commons.math3.util.Pair;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.sql.Connection;
 import java.util.Map;
 
 import static com.pb.util.EscapeUtil.sanitizeHeader;
-import static com.pb.util.TableNameUtil.createTableNameAndExtension;
 
 public class FileProcessingService {
     private final FileReader fileReader;
-    private final DataSource dataSource;
     private final DatabaseWriter databaseWriter;
 
-    public FileProcessingService(FileReader fileReader, DataSource dataSource, DatabaseWriter databaseWriter) {
+    public FileProcessingService(FileReader fileReader, DatabaseWriter databaseWriter) {
         this.fileReader = fileReader;
-        this.dataSource = dataSource;
         this.databaseWriter = databaseWriter;
     }
 
-    public void processFile(String source, String fileName) throws Exception {
-        Pair<String, String> tableNameAndExtension = createTableNameAndExtension(fileName);
+    public void processFile(File file, String fileName, String extension, Connection connection) throws Exception {
 
-        try (InputStream inputStream = dataSource.getInputStream(source)) {
-            // Read all bytes using a ByteArrayOutputStream instead of readAllBytes()
+        try (InputStream fileInputStream = Files.newInputStream(file.toPath())) {
+            // Read all bytes using a ByteArrayOutputStream
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int length;
-            while ((length = inputStream.read(buffer)) != -1) {
+            while ((length = fileInputStream.read(buffer)) != -1) {
                 byteArrayOutputStream.write(buffer, 0, length);
             }
             byte[] fileData = byteArrayOutputStream.toByteArray();
@@ -49,9 +44,9 @@ public class FileProcessingService {
                 headers.replaceAll((k, v) -> sanitizeHeader(v));
                 Map<Integer, String> columnTypes = fileReader.determineColumnTypes(columnTypeStream);
 
-                // Create table and insert data
-                databaseWriter.createTable(headers, columnTypes, tableNameAndExtension.getFirst());
-                databaseWriter.insertData(headers, columnTypes, tableNameAndExtension.getFirst(), tableNameAndExtension.getSecond(), dataStream);
+                // Create table and insert data using connection
+                databaseWriter.createTable(headers, columnTypes, fileName, connection);
+                databaseWriter.insertData(headers, columnTypes, fileName, extension, dataStream, connection);
             }
         }
     }

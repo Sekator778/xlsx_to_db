@@ -12,6 +12,7 @@ import java.util.Map;
 public class DatabaseConnectionManager {
 
     private static Map<String, Map<String, String>> properties;
+
     /* TODO rewrite for use datasource in main class */
     public static void loadProperties(String configFileName) {
         Yaml yaml = new Yaml();
@@ -22,7 +23,7 @@ public class DatabaseConnectionManager {
         }
     }
 
-    public static Connection getConnection() throws SQLException {
+    public static Connection getConnection() {
         if (properties == null) {
             throw new RuntimeException("Database properties not loaded. Call loadProperties first.");
         }
@@ -35,7 +36,12 @@ public class DatabaseConnectionManager {
         String url = jdbcProperties.get("url");
         String user = jdbcProperties.get("user");
         String password = jdbcProperties.get("password");
-
-        return DriverManager.getConnection(url, user, password);
+        Connection connection;
+        try {
+            connection = DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to connect to database url: " + url, e);
+        }
+        return connection;
     }
 }
