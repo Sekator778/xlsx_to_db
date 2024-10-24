@@ -20,6 +20,6 @@ public class App {
         String filePath = args[0];
         File file = new File(filePath);
 
-        FileProcessor.processFile(file, DatabaseConnectionManager.getConnection());
+        FileProcessor.processFile(file, DatabaseConnectionManager.getConnection(), "test2");
     }
 }

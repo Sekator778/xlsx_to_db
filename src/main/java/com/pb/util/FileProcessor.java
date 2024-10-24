@@ -7,8 +7,6 @@ import com.pb.filereader.FileReader;
 import com.pb.service.FileProcessingService;
 import com.pb.writer.PostgresDatabaseWriter;
 
-import org.apache.commons.math3.util.Pair;
-
 import java.io.File;
 import java.sql.Connection;
 import java.util.logging.Logger;
@@ -21,10 +19,13 @@ public class FileProcessor {
      *
      * @param file the file
      */
-    public static void processFile(File file, Connection connection) {
-        Pair<String, String> tableNameAndExtension = TableNameUtil.createTableNameAndExtension(file.getName());
+    public static void processFile(File file, Connection connection, String tableName) {
+        String fileExtension;
+        if (tableName == null) {
+            tableName = TableNameUtil.createTableNameAndExtension(file.getName()).getFirst();
+        }
         FileReader fileReader;
-        String fileExtension = tableNameAndExtension.getSecond().toLowerCase();
+        fileExtension = TableNameUtil.createTableNameAndExtension(file.getName()).getSecond().toLowerCase();
 
         switch (fileExtension) {
             case "xlsx":
@@ -43,10 +44,8 @@ public class FileProcessor {
 
         PostgresDatabaseWriter databaseWriter = new PostgresDatabaseWriter();
         FileProcessingService fileProcessingService = new FileProcessingService(fileReader, databaseWriter);
-        String fileName = tableNameAndExtension.getFirst();
-        String extension = tableNameAndExtension.getSecond();
         try {
-            fileProcessingService.processFile(file, fileName, extension, connection);
+            fileProcessingService.processFile(file, tableName, fileExtension, connection);
         } catch (Exception e) {
             log.severe("An error occurred during file processing: " + e.getMessage());
         }
