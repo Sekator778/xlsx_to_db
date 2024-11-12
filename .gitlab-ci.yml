@@ -1,0 +1,25 @@
+image: amazoncorretto:21
+
+stages:
+    - Test
+    - Build
+
+variables:
+    GIT_STRATEGY: clone
+
+test:
+    stage: Test
+    script:
+        - echo "Running tests"
+        - ./mvnw test
+    only:
+        - merge_requests
+
+Prod_Build:
+    stage: Build
+    variables:
+        GIT_STRATEGY: clone
+    script:
+        - mvn clean deploy -DskipTests=true
+    only:
+        - main
