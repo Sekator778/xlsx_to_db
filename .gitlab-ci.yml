@@ -22,7 +22,7 @@ Prod_Build:
     variables:
         GIT_STRATEGY: clone
     script:
-        - mvn clean deploy -DskipTests=true
+        - ./mvnw clean deploy -DskipTests=true
     only:
         - main
     tags:

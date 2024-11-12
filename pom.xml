@@ -85,4 +85,16 @@
             </plugin>
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <name>Internal Releases</name>
+            <url>https://your-nexus.example.com/repository/maven-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <name>Internal Snapshot</name>
+            <url>https://your-nexus.example.com/repository/maven-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
