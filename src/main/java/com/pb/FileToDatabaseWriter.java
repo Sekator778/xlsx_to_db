@@ -19,9 +19,12 @@ public class FileToDatabaseWriter {
     /**
      * Processes a file and writes its data to a PostgreSQL database.
      *
-     * @param file the file
+     * @param fileName the fileName with extension
      */
-    public static void processFile(File file, Connection connection, String tableName) {
+    public static void processFile(String fileName, Connection connection, String tableName) {
+        log.info("Processing file: " + fileName);
+        log.info("Table name: " + tableName);
+        File file = new File(fileName);
         FileUtils.FileUnzipResult fileUnzipResult = FileUtils.unzipOrProcessFile(file);
         if (fileUnzipResult == null) {
             log.severe("No valid file found.");

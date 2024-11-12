@@ -25,7 +25,7 @@ class AppTest {
         File tempFile = generateTempCsvFile();
         DatabaseConnectionManager.loadProperties("application-test.yml");
 
-        FileToDatabaseWriter.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
+        FileToDatabaseWriter.processFile(tempFile.getAbsolutePath(), DatabaseConnectionManager.getConnection(), null);
 
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
@@ -58,7 +58,7 @@ class AppTest {
 
         DatabaseConnectionManager.loadProperties("application-test.yml");
 
-        FileToDatabaseWriter.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
+        FileToDatabaseWriter.processFile(tempFile.getAbsolutePath(), DatabaseConnectionManager.getConnection(), null);
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
         try (Connection connection = DatabaseConnectionManager.getConnection();
@@ -90,7 +90,7 @@ class AppTest {
 
         DatabaseConnectionManager.loadProperties("application-test.yml");
 
-        FileToDatabaseWriter.processFile(tempFile, DatabaseConnectionManager.getConnection(), null);
+        FileToDatabaseWriter.processFile(tempFile.getAbsolutePath(), DatabaseConnectionManager.getConnection(), null);
         String tableName = createTableNameAndExtension(tempFile.getName()).getFirst();
 
         try (Connection connection = DatabaseConnectionManager.getConnection();

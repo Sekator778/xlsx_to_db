@@ -92,7 +92,7 @@ public class ExcelToDatabase {
     }
 
     private static void createTable(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName) throws SQLException {
-        StringBuilder createTableSQL = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+        StringBuilder createTableSQL = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (Map.Entry<Integer, String> entry : headers.entrySet()) {
             int columnIndex = entry.getKey();
             String columnName = entry.getValue();

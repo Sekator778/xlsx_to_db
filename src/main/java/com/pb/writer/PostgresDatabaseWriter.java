@@ -33,7 +33,7 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
     @Override
     public void createTable(Map<Integer, String> headers, Map<Integer, String> columnTypes, String tableName, Connection connection) throws Exception {
 //        validateSqlIdentifier(tableName); TODO current version for ase database and syntax as CREATE TABLE #temp_table(id int);
-        StringBuilder createTableSQL = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+        StringBuilder createTableSQL = new StringBuilder("CREATE TABLE " + tableName + " (");
         for (Map.Entry<Integer, String> entry : headers.entrySet()) {
             int columnIndex = entry.getKey();
             String columnName = entry.getValue();

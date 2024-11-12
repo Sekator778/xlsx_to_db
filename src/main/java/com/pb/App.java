@@ -17,8 +17,7 @@ public class App {
         DatabaseConnectionManager.loadProperties("application.yml");
 
         String filePath = args[0];
-        File file = new File(filePath);
 
-        FileToDatabaseWriter.processFile(file, DatabaseConnectionManager.getConnection(), "abcg_xlsx");
+        FileToDatabaseWriter.processFile(filePath, DatabaseConnectionManager.getConnection(), "abcg_xlsx");
     }
 }
