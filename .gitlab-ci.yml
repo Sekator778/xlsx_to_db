@@ -14,6 +14,8 @@ test:
         - ./mvnw test
     only:
         - merge_requests
+    tags:
+        - your-runner
 
 Prod_Build:
     stage: Build
@@ -23,3 +25,5 @@ Prod_Build:
         - mvn clean deploy -DskipTests=true
     only:
         - main
+    tags:
+        - your-runner
