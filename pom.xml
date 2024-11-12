@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.pb.avbo.legacy</groupId>
-    <artifactId>xlsx_to_db</artifactId>
+    <artifactId>file_to_db</artifactId>
     <version>1.0.0</version>
 
     <properties>
