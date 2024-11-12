@@ -44,9 +44,11 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
         createTableSQL.deleteCharAt(createTableSQL.length() - 1).append(")");
 
         Statement statement = connection.createStatement();
-        String dropTableSQL = "DROP TABLE " + tableName;
-        log.info("Dropping table with SQL: " + dropTableSQL);
-        statement.execute(dropTableSQL);
+        /* TODO current version for salaryavbo project where we have drop before and use sybase db; */
+//        String dropTableSQL = "DROP TABLE IF EXISTS " + tableName;
+//        String dropTableSQL = "DROP TABLE " + tableName;
+//        log.info("Dropping table with SQL: " + dropTableSQL);
+//        statement.execute(dropTableSQL);
         log.info("Creating table with SQL: " + createTableSQL);
         statement.execute(createTableSQL.toString());
     }
