@@ -18,6 +18,6 @@ public class App {
 
         String filePath = args[0];
 
-        FileToDatabaseWriter.processFile(filePath, DatabaseConnectionManager.getConnection(), "abcg_xlsx");
+        FileToDatabaseWriter.processFile(filePath, DatabaseConnectionManager.getConnection(), "or_dbf");
     }
 }
