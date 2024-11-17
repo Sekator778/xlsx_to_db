@@ -1,5 +1,9 @@
 image: amazoncorretto:21
 
+default:
+    tags:
+        - your-runner
+
 stages:
     - Test
     - Build
