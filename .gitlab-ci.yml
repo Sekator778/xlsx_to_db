@@ -35,7 +35,7 @@ Prod_Build:
 
 dependabot:
     stage: Dependabot
-    image: dependabot/dependabot-core:latest
+    image: your-docker-registry.example.com/dependabot-core:latest
     script:
         - dependabot update
     variables:
