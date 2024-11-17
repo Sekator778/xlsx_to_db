@@ -33,12 +33,24 @@ Prod_Build:
     tags:
         - your-runner
 
+#dependabot:
+#    stage: Dependabot
+#    image: your-docker-registry.example.com/dependabot-core:latest
+#    script:
+#        - dependabot update
+#    variables:
+#        GITLAB_ACCESS_TOKEN: $CI_PROJECT_ACCESS_TOKEN
+#    rules:
+#        - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
 dependabot:
     stage: Dependabot
-    image: your-docker-registry.example.com/dependabot-core:latest
+    image: ghcr.io/dependabot/dependabot-core:latest
     script:
         - dependabot update
     variables:
         GITLAB_ACCESS_TOKEN: $CI_PROJECT_ACCESS_TOKEN
+    before_script:
+        - echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USERNAME --password-stdin
     rules:
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
