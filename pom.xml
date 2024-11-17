@@ -6,7 +6,7 @@
 
     <groupId>com.pb.avbo.legacy</groupId>
     <artifactId>file_to_db</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.3</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.3</version>
+            <version>42.5.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

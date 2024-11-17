@@ -3,6 +3,7 @@ image: amazoncorretto:21
 stages:
     - Test
     - Build
+    - Dependabot
 
 variables:
     GIT_STRATEGY: clone
@@ -22,8 +23,18 @@ Prod_Build:
     variables:
         GIT_STRATEGY: clone
     script:
-        - ./mvnw clean deploy -DskipTests=true
+        - ./mvnw install -DskipTests=true
     only:
         - main
     tags:
         - your-runner
+
+dependabot:
+    stage: Dependabot
+    image: dependabot/dependabot-core:latest
+    script:
+        - dependabot update
+    variables:
+        GITLAB_ACCESS_TOKEN: $CI_PROJECT_ACCESS_TOKEN
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "schedule"'
