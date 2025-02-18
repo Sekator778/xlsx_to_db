@@ -103,7 +103,7 @@ public class ExcelToDatabase {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
              Statement statement = connection.createStatement()) {
             // Drop the table if it already exists
-            String dropTableSQL = "DROP TABLE IF EXISTS " + tableName;
+            String dropTableSQL = "DROP TABLE " + tableName;
             log.info("Dropping table with SQL: " + dropTableSQL);
             statement.execute(dropTableSQL);
             log.info("Creating table with SQL: " + createTableSQL);

@@ -45,10 +45,10 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
 
         Statement statement = connection.createStatement();
         /* TODO current version for salaryavbo project where we have drop before and use sybase db; */
-//        String dropTableSQL = "DROP TABLE IF EXISTS " + tableName;
+        String dropTableSQL = "DROP TABLE " + tableName;
 //        String dropTableSQL = "DROP TABLE " + tableName;
-//        log.info("Dropping table with SQL: " + dropTableSQL);
-//        statement.execute(dropTableSQL);
+        log.info("Dropping table with SQL: " + dropTableSQL);
+        statement.execute(dropTableSQL);
         log.info("Creating table with SQL: " + createTableSQL);
         statement.execute(createTableSQL.toString());
     }
@@ -151,9 +151,11 @@ public class PostgresDatabaseWriter implements DatabaseWriter {
 
             Object[] row;
             while ((row = reader.nextRecord()) != null) {
+                log.info("Inserting row: ");
                 for (int i = 0; i < headers.size(); i++) {
                     Object value = row[i];
                     String columnType = columnTypes.get(i);
+                    log.info(headers.get(i) + "=" + value + " ");
                     setPreparedStatementValue(preparedStatement, i + 1, value, columnType);
                 }
                 preparedStatement.addBatch();

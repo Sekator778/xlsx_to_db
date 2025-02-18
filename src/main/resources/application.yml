@@ -1,4 +1,10 @@
-jdbc:
-  url: jdbc:postgresql://localhost:5432/test
-  user: postgres
-  password: password
+#jdbc:
+#  url: jdbc:postgresql://localhost:5432/test
+#  user: postgres
+#  password: password
+
+
+  jdbc:
+    url: jdbc:jtds:sybase://localhost:5000
+    user: db_user
+    password: YOUR_DB_PASSWORD
